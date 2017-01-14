@@ -1,0 +1,132 @@
+@import 'config.cocoascript';
+var savePath = NSTemporaryDirectory();
+
+function uploadAndCopyImgTag(context){
+  uploadAndCopy(context, "img");
+}
+
+function uploadAndCopyFloatedImgTag(context){
+  uploadAndCopy(context, "floatedImg");
+}
+
+function uploadAndCopyTableTag(context){
+  uploadAndCopy(context, "table");
+}
+
+function uploadAndCopy(context, pattern){
+  var doc = context.document;
+  var selection = context.selection;
+  
+  if (selection.count() == 0){
+    doc.showMessage("Please select artboards to upload.");
+  } else{
+    var urls = uploadSelectedArtboards(context);
+    urls2Clipboard(urls, pattern);
+    doc.showMessage("Uploaded! URL is in clipboard.");
+  }
+}
+
+function uploadSelectedArtboards(context){
+  var doc = context.document;
+  var artboards = context.selection;
+  
+  if (artboards.count() >= 1){
+    var urls = [];
+    for (i=0; i<artboards.count(); i++){
+      //doc.showMessage("Uploading..");
+      var artboard = artboards[i];
+      if (isArtboard(artboard)){
+        var fileName = toSafeName(artboard.name()) + ".png";
+        var path = savePath + fileName;
+        [doc saveArtboardOrSlice:artboard toFile:path];
+        var result = upload(path, context);
+        
+        var endpoint = readConfig(getPluginPath(context), CONFIG_ENDPOINT_NAME);
+        if (endpoint == "https://upload.gyazo.com/api/upload"){
+          var json = JSON.parse(result);
+          var url = json.url;
+        } else {
+          var url = result;
+        }
+        // Open in specified app (browser)
+        //[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:url]];
+        urls.push(url);
+      } else {
+        doc.showMessage("You can upload only artboard, not the layer object.");
+      }
+    }
+    return urls;
+  }
+}
+
+function upload(path, context){
+  var endpoint = readConfig(getPluginPath(context), CONFIG_ENDPOINT_NAME);
+  var accessTokenRequest = readConfig(getPluginPath(context), CONFIG_ACCESSTOKEN_NAME);
+  
+  if (!endpoint){
+    context.document.showMessage("Set your endpoint from plugin config menu.");
+    return false;
+  }
+  if (!accessTokenRequest){
+    context.document.showMessage("Set your api access token from plugin config menu.");
+    return false;
+  }
+  
+  var task = NSTask.alloc().init();
+  task.setLaunchPath("/usr/bin/curl");
+  var args = NSArray.arrayWithObjects(
+    "-X", "POST",
+    "-F", "imagedata=@" + path,
+    "-F", accessTokenRequest,
+    "Content-Disposition: form-data; Name=artboardfile; Content-Type=image/png;",
+    endpoint, nil
+  );
+  
+  task.setArguments(args);
+
+  var pipe = NSPipe.pipe();
+  task.setStandardOutput_(pipe);
+  task.launch();
+  var data = pipe.fileHandleForReading().readDataToEndOfFile();
+  var url = NSString.alloc().initWithData_encoding_(data, NSUTF8StringEncoding);
+  return url;
+}
+
+function toSafeName(fileName){
+    return fileName.replace(/[^a-zA-Z0-9]/gi, '_').toLowerCase();
+}
+
+function isArtboard(arboard) {
+    return [arboard isMemberOfClass:[MSArtboardGroup class]];
+}
+
+function urls2Clipboard(urls, pattern){
+  var clipboard = [];
+  var headerCells = [];
+  
+  for (i=0; i<urls.length; i++){
+    if (pattern == "img"){
+      clipboard.push('<img src="' + urls[i] + '" width="200">');
+    } else if (pattern == "floatedImg"){
+      clipboard.push('<img src="' + urls[i] + '" width="200" align="top">');
+    } else if (pattern == "table"){
+      clipboard.push('<td><img src="' + urls[i] + '"></td>');
+      headerCells.push('<th></th>');
+    }
+  }
+  
+  if (pattern == "img"){
+    tag_clipboard = clipboard.join("\n");
+  } else if (pattern == "floatedImg"){
+    tag_clipboard = clipboard.join("");
+  } else if (pattern == "table"){
+    tag_clipboard = "<table>\n<tr>\n" + headerCells.join("\n") + "\n</tr>\n<tr>\n" +clipboard.join("\n") + "\n</tr>\n</table>";
+  }
+  text2Clipboard(tag_clipboard);
+}
+
+function text2Clipboard(text){
+  var pasteBoard = [NSPasteboard generalPasteboard];
+  [pasteBoard declareTypes:[NSArray arrayWithObject:NSPasteboardTypeString] owner:nil]
+  [pasteBoard setString:text forType:NSPasteboardTypeString];
+}

@@ -1,0 +1,42 @@
+var CONFIG_ENDPOINT_NAME = ".endpoint";
+var CONFIG_ACCESSTOKEN_NAME = ".accesstoken";
+
+function setEndpoint(context){
+	showConfigDialog(context, CONFIG_ENDPOINT_NAME, "endpoint");
+}
+
+function setAccessTokenRequest(context){
+	showConfigDialog(context, CONFIG_ACCESSTOKEN_NAME, "access token fomula (ex.`access_token=123ABC`)");
+}
+
+function getPluginPath(context){
+	return context.scriptPath.replace(/[a-zA-Z0-9]+\.cocoascript$/, "");
+}
+
+function showConfigDialog(context, fileName, target) {
+	var doc = context.document;
+	var pluginPath = getPluginPath(context);
+	var savedPath = readConfig(pluginPath, fileName);
+	var message = "Specify " + target + " of your uploader";
+	
+	var config = [doc askForUserInput: message initialValue:savedPath];
+	writeConfig(config, pluginPath, fileName);
+	doc.showMessage("Changed " + target + " to " + config);
+}
+
+function writeConfig(text, pluginPath, fileName){
+	var content = [NSString stringWithFormat:@"%@", text],
+	file = [NSString stringWithFormat:@"%@", pluginPath + fileName];
+  [content writeToFile:file atomically:true encoding:NSUTF8StringEncoding error:nil];
+}
+
+function readConfig(pluginPath, fileName) {
+  var fileManager = NSFileManager.defaultManager();
+	var configFile = pluginPath + fileName;
+	var fileExists = fileManager.fileExistsAtPath(configFile);
+  if (fileExists) {
+    return [NSString stringWithContentsOfFile:configFile encoding:NSUTF8StringEncoding error:nil];
+  } else{
+		return "";
+	}
+}

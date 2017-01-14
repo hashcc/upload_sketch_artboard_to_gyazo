@@ -1,0 +1,50 @@
+{
+  "name": "Upload to Gyazo",
+  "description": "Upload selected artboards to Gyazo",
+  "author": "Naoki Hashimoto",
+  "homepage": "http://note.openvista.jp/2017/upload_sketch_artboards_plugin",
+  "version": 0.1,
+  "identifier" : "jp.openvista.sketchuploader",
+  "compatibleVersion": 40,
+  "commands":[
+    {
+      "name": "Upload Artboards (copy img tag)",
+      "identifier": "upload-artboards-copy-img",
+      "shortcut": "command shift 8",
+      "script": "upload.cocoascript",
+      "handler": "uploadAndCopyImgTag"
+    }, {
+      "name": "Upload Artboards (copy floated img tag)",
+      "identifier": "upload-artboards-copy-floated-img",
+      "shortcut": "command shift 9",
+      "script": "upload.cocoascript",
+      "handler": "uploadAndCopyFloatedImgTag"
+    }, {
+      "name": "Upload Artboards (copy table tag)",
+      "identifier": "upload-artboards-copy-table",
+      "shortcut": "command shift 0",
+      "script": "upload.cocoascript",
+      "handler": "uploadAndCopyTableTag"
+    }, {
+      "name": "Edit uploader endpoint..",
+      "identifier": "set-endpoint",
+      "script": "config.cocoascript",
+      "handler": "setEndpoint"
+    }, {
+      "name": "Edit uploader access token..",
+      "identifier": "set-access-token-request",
+      "script": "config.cocoascript",
+      "handler": "setAccessTokenRequest"
+    }
+  ],
+  "menu":
+  {
+    "items":[
+      "upload-artboards-copy-img",
+      "upload-artboards-copy-floated-img",
+      "upload-artboards-copy-table",
+      "set-endpoint",
+      "set-access-token-request"
+    ]
+  }
+}
