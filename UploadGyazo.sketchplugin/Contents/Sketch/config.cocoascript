@@ -6,7 +6,7 @@ function setEndpoint(context){
 }
 
 function setAccessTokenRequest(context){
-	showConfigDialog(context, CONFIG_ACCESSTOKEN_NAME, "access token fomula (ex.`access_token=123ABC`)");
+	showConfigDialog(context, CONFIG_ACCESSTOKEN_NAME, "access token like `keyname=YOUR_TOKEN`)");
 }
 
 function getPluginPath(context){

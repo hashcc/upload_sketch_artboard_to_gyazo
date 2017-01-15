@@ -17,7 +17,7 @@ You can
 
 ## configuration
 At first, you must configure API endpoint & API access token.
-API access token should be specified `keyname=token` formula.
+API access token should be specified `keyname=YOUR_TOKEN` formula.
 
 You can get Gyazo API access token here.  
 https://gyazo.com/api?lang=ja
