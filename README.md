@@ -3,6 +3,7 @@
 With this plugin, You can easily upload multiple sketch artboards to Gyazo.
 Like this..
 
+Youtube demo: https://www.youtube.com/watch?v=i0Ppd208beI
 [![](https://i.ytimg.com/vi/i0Ppd208beI/hqdefault.jpg)](https://www.youtube.com/watch?v=i0Ppd208beI&feature=youtu.be)
 
 You can
